@@ -1,8 +1,15 @@
 using System;
+using System.IO;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
+using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDevice : IRokuDevice
+    public sealed class RokuDevice : IRokuDevice, IRokuDeviceQueryApi
     {
         public RokuDevice(Uri location, string serialNumber)
         {
@@ -15,6 +22,31 @@ namespace RokuDotNet.Client
         public Uri Location { get; }
 
         public string SerialNumber { get; }
+
+        public IRokuDeviceQueryApi QueryApi => this;
+
+        #endregion
+
+        #region IRokuDeviceQueryApi Members
+
+        async Task<GetAppsResult> IRokuDeviceQueryApi.GetAppsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var httpClient = new HttpClient();
+
+            // NOTE: Roku returns "Content-Type: text/xml; charset="utf-8"".
+            //       The quotes surrounding the encoding are problematic for 
+            //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
+
+            var responseBytes = await httpClient.GetByteArrayAsync(new Uri(this.Location, "query/apps")).ConfigureAwait(false);
+            var responseString = Encoding.UTF8.GetString(responseBytes);
+
+            var serializer = new XmlSerializer(typeof(GetAppsResult));
+            
+            using (var reader = new StringReader(responseString))
+            {
+                return (GetAppsResult)serializer.Deserialize(reader);
+            }
+        }
 
         #endregion
     }
