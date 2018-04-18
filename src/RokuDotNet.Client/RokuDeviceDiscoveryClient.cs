@@ -14,7 +14,12 @@ namespace RokuDotNet.Client
 
         public event EventHandler<DeviceDiscoveredEventArgs> DeviceDiscovered;
 
-        public async Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return this.DiscoverDevicesAsync(null, cancellationToken);
+        }
+
+        public async Task DiscoverDevicesAsync(Func<IRokuDevice, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
         {
             string discoverRequest =
 "M-SEARCH * HTTP/1.1\n" +
@@ -74,7 +79,23 @@ namespace RokuDotNet.Client
                     {
                         var device = new RokuDevice(locationUri, serialNumber);
 
-                        this.DeviceDiscovered?.Invoke(this, new DeviceDiscoveredEventArgs(device));
+                        bool cancelDiscovery = false;
+
+                        if (onDeviceDiscovered != null)
+                        {
+                            cancelDiscovery = await onDeviceDiscovered(device).ConfigureAwait(false);
+                        }
+
+                        var args = new DeviceDiscoveredEventArgs(device) { CancelDiscovery = cancelDiscovery };
+
+                        this.DeviceDiscovered?.Invoke(this, args);
+
+                        cancelDiscovery = args.CancelDiscovery;
+
+                        if (cancelDiscovery)
+                        {
+                            return;
+                        }
                     }
                 }
             }

@@ -9,5 +9,7 @@ namespace RokuDotNet.Client
         event EventHandler<DeviceDiscoveredEventArgs> DeviceDiscovered;
 
         Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        Task DiscoverDevicesAsync(Func<IRokuDevice, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
