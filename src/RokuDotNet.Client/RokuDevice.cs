@@ -39,6 +39,11 @@ namespace RokuDotNet.Client
             return this.GetAsync<GetAppsResult>("query/apps");
         }
 
+        Task<GetTvChannelsResult> IRokuDeviceQueryApi.GetTvChannelsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return this.GetAsync<GetTvChannelsResult>("query/tv-channels");
+        }
+
         #endregion
 
         private async Task<T> GetAsync<T>(string relativeUrl)
