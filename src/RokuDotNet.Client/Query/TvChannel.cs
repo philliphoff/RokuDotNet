@@ -2,7 +2,7 @@ using System.Xml.Serialization;
 
 namespace RokuDotNet.Client.Query
 {
-    public sealed class TvChannel
+    public class TvChannel
     {
         [XmlElement("name")]
         public string Name { get; set; }

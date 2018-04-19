@@ -10,5 +10,7 @@ namespace RokuDotNet.Client.Query
         Task<GetAppsResult> GetAppsAsync(CancellationToken cancellationToken = default(CancellationToken));
     
         Task<GetTvChannelsResult> GetTvChannelsAsync(CancellationToken cancellationToken = default(CancellationToken));
+    
+        Task<GetActiveTvChannelResult> GetActiveTvChannelAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }
