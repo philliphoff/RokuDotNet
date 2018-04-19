@@ -37,14 +37,9 @@ namespace RokuDotNet.Client
             //       The quotes surrounding the encoding are problematic for 
             //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
 
-            var responseBytes = await httpClient.GetByteArrayAsync(new Uri(this.Location, "query/active-app")).ConfigureAwait(false);
-            var responseString = Encoding.UTF8.GetString(responseBytes);
-
-            var serializer = new XmlSerializer(typeof(GetActiveAppResult));
-            
-            using (var reader = new StringReader(responseString))
+            using (var stream = await httpClient.GetStreamAsync(new Uri(this.Location, "query/active-app")).ConfigureAwait(false))
             {
-                return (GetActiveAppResult)serializer.Deserialize(reader);
+                return Deserialize<GetActiveAppResult>(stream);
             }
         }
 
@@ -56,17 +51,19 @@ namespace RokuDotNet.Client
             //       The quotes surrounding the encoding are problematic for 
             //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
 
-            var responseBytes = await httpClient.GetByteArrayAsync(new Uri(this.Location, "query/apps")).ConfigureAwait(false);
-            var responseString = Encoding.UTF8.GetString(responseBytes);
-
-            var serializer = new XmlSerializer(typeof(GetAppsResult));
-            
-            using (var reader = new StringReader(responseString))
+            using (var stream = await httpClient.GetStreamAsync(new Uri(this.Location, "query/apps")).ConfigureAwait(false))
             {
-                return (GetAppsResult)serializer.Deserialize(reader);
+                return Deserialize<GetAppsResult>(stream);
             }
         }
 
         #endregion
+
+        private static T Deserialize<T>(Stream stream)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+
+            return (T)serializer.Deserialize(stream);
+        }
     }
 }
