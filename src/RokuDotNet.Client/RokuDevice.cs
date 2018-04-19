@@ -29,35 +29,31 @@ namespace RokuDotNet.Client
 
         #region IRokuDeviceQueryApi Members
 
-        async Task<GetActiveAppResult> IRokuDeviceQueryApi.GetActiveAppAsync(CancellationToken cancellationToken = default(CancellationToken))
+        Task<GetActiveAppResult> IRokuDeviceQueryApi.GetActiveAppAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var httpClient = new HttpClient();
-
-            // NOTE: Roku returns "Content-Type: text/xml; charset="utf-8"".
-            //       The quotes surrounding the encoding are problematic for 
-            //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
-
-            using (var stream = await httpClient.GetStreamAsync(new Uri(this.Location, "query/active-app")).ConfigureAwait(false))
-            {
-                return Deserialize<GetActiveAppResult>(stream);
-            }
+            return this.GetAsync<GetActiveAppResult>("query/active-app");
         }
 
-        async Task<GetAppsResult> IRokuDeviceQueryApi.GetAppsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        Task<GetAppsResult> IRokuDeviceQueryApi.GetAppsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var httpClient = new HttpClient();
-
-            // NOTE: Roku returns "Content-Type: text/xml; charset="utf-8"".
-            //       The quotes surrounding the encoding are problematic for 
-            //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
-
-            using (var stream = await httpClient.GetStreamAsync(new Uri(this.Location, "query/apps")).ConfigureAwait(false))
-            {
-                return Deserialize<GetAppsResult>(stream);
-            }
+            return this.GetAsync<GetAppsResult>("query/apps");
         }
 
         #endregion
+
+        private async Task<T> GetAsync<T>(string relativeUrl)
+        {
+            var httpClient = new HttpClient();
+
+            // NOTE: Roku returns "Content-Type: text/xml; charset="utf-8"".
+            //       The quotes surrounding the encoding are problematic for 
+            //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
+
+            using (var stream = await httpClient.GetStreamAsync(new Uri(this.Location, relativeUrl)).ConfigureAwait(false))
+            {
+                return Deserialize<T>(stream);
+            }            
+        }
 
         private static T Deserialize<T>(Stream stream)
         {
