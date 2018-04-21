@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using RokuDotNet.Client.Input;
 using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDevice : IRokuDevice, IRokuDeviceQueryApi
+    public sealed class RokuDevice : IRokuDevice, IRokuDeviceInputApi, IRokuDeviceQueryApi
     {
         public RokuDevice(Uri location, string serialNumber)
         {
@@ -19,11 +20,38 @@ namespace RokuDotNet.Client
 
         #region IRokuDevice Members
 
+        public IRokuDeviceInputApi InputApi => this;
+
         public Uri Location { get; }
 
         public string SerialNumber { get; }
 
         public IRokuDeviceQueryApi QueryApi => this;
+
+        #endregion
+
+        #region IRokuDeviceInputApi Members
+
+        Task IRokuDeviceInputApi.KeyDownAsync(string key, CancellationToken cancellationToken)
+        {
+            var client = new HttpClient();
+
+            return client.PostAsync(new Uri(this.Location, $"keydown/{key}"), new ByteArrayContent(new byte[] {}), cancellationToken);
+        }
+
+        Task IRokuDeviceInputApi.KeyPressAsync(string key, CancellationToken cancellationToken)
+        {
+            var client = new HttpClient();
+
+            return client.PostAsync(new Uri(this.Location, $"keypress/{key}"), new ByteArrayContent(new byte[] {}), cancellationToken);
+        }
+
+        Task IRokuDeviceInputApi.KeyUpAsync(string key, CancellationToken cancellationToken)
+        {
+            var client = new HttpClient();
+
+            return client.PostAsync(new Uri(this.Location, $"keyup/{key}"), new ByteArrayContent(new byte[] {}), cancellationToken);
+        }
 
         #endregion
 
