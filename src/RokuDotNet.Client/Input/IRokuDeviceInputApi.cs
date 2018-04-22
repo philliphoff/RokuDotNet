@@ -5,10 +5,14 @@ namespace RokuDotNet.Client.Input
 {
     public interface IRokuDeviceInputApi
     {
-        Task KeyDownAsync(string key, CancellationToken cancellationToken = default(CancellationToken));
+        Task KeyDownAsync(SpecialKeys key, CancellationToken cancellationToken = default(CancellationToken));
+        Task KeyDownAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task KeyPressAsync(string key, CancellationToken cancellationToken = default(CancellationToken));
+        Task KeyPressAsync(SpecialKeys key, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task KeyUpAsync(string key, CancellationToken cancellationToken = default(CancellationToken));
+        Task KeyPressAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
+
+        Task KeyUpAsync(SpecialKeys key, CancellationToken cancellationToken = default(CancellationToken));
+        Task KeyUpAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
