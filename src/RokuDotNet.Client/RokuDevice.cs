@@ -13,6 +13,8 @@ namespace RokuDotNet.Client
 {
     public sealed class RokuDevice : IRokuDevice, IRokuDeviceInputApi, IRokuDeviceQueryApi
     {
+        private readonly HttpClient client = new HttpClient();
+
         public RokuDevice(Uri location, string serialNumber)
         {
             this.Location = location ?? throw new ArgumentNullException(nameof(location));
@@ -63,20 +65,6 @@ namespace RokuDotNet.Client
             return this.KeyInputAsync("keyup", key, cancellationToken);
         }
 
-        private Task KeyInputAsync(string inputType, SpecialKeys key, CancellationToken cancellationToken)
-        {
-            var client = new HttpClient();
-
-            return client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeSpecialKey(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
-        }
-
-        private Task KeyInputAsync(string inputType, char key, CancellationToken cancellationToken)
-        {
-            var client = new HttpClient();
-
-            return client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeChar(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
-        }
-
         #endregion
 
         #region IRokuDeviceQueryApi Members
@@ -86,9 +74,19 @@ namespace RokuDotNet.Client
             return this.GetAsync<GetActiveAppResult>("query/active-app");
         }
 
+        Task<GetActiveTvChannelResult> IRokuDeviceQueryApi.GetActiveTvChannelAsync(CancellationToken cancellationToken)
+        {
+            return this.GetAsync<GetActiveTvChannelResult>("query/tv-active-channel");
+        }
+
         Task<GetAppsResult> IRokuDeviceQueryApi.GetAppsAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<GetAppsResult>("query/apps");
+        }
+
+        Task<DeviceInfo> IRokuDeviceQueryApi.GetDeviceInfoAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return this.GetAsync<DeviceInfo>("query/device-info");
         }
 
         Task<GetTvChannelsResult> IRokuDeviceQueryApi.GetTvChannelsAsync(CancellationToken cancellationToken)
@@ -96,22 +94,25 @@ namespace RokuDotNet.Client
             return this.GetAsync<GetTvChannelsResult>("query/tv-channels");
         }
 
-        Task<GetActiveTvChannelResult> IRokuDeviceQueryApi.GetActiveTvChannelAsync(CancellationToken cancellationToken)
+        #endregion
+
+        private Task KeyInputAsync(string inputType, SpecialKeys key, CancellationToken cancellationToken)
         {
-            return this.GetAsync<GetActiveTvChannelResult>("query/tv-active-channel");
+            return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeSpecialKey(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
         }
 
-        #endregion
+        private Task KeyInputAsync(string inputType, char key, CancellationToken cancellationToken)
+        {
+            return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeChar(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
+        }
 
         private async Task<T> GetAsync<T>(string relativeUrl)
         {
-            var httpClient = new HttpClient();
-
             // NOTE: Roku returns "Content-Type: text/xml; charset="utf-8"".
             //       The quotes surrounding the encoding are problematic for 
             //       HttpClient.GetStringAsync(), so use GetByteArrayAsync().
 
-            using (var stream = await httpClient.GetStreamAsync(new Uri(this.Location, relativeUrl)).ConfigureAwait(false))
+            using (var stream = await this.client.GetStreamAsync(new Uri(this.Location, relativeUrl)).ConfigureAwait(false))
             {
                 return Deserialize<T>(stream);
             }            
