@@ -84,7 +84,7 @@ namespace RokuDotNet.Client
             return this.GetAsync<GetAppsResult>("query/apps");
         }
 
-        Task<DeviceInfo> IRokuDeviceQueryApi.GetDeviceInfoAsync(CancellationToken cancellationToken = default(CancellationToken))
+        Task<DeviceInfo> IRokuDeviceQueryApi.GetDeviceInfoAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<DeviceInfo>("query/device-info");
         }

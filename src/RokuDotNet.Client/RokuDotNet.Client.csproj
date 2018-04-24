@@ -4,4 +4,29 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.1</AssemblyVersion>
+    <PackageVersion Condition="'$(PackageVersion)' == ''">$(AssemblyVersion).0</PackageVersion>
+    <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">$(PackageVersion)</AssemblyFileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>RokuDotNet.Client</PackageId>
+    <Authors>Phillip Hoff</Authors>
+    <Title>.NET Client for Roku Devices</Title>
+    <PackageDescription>A .NET client for Roku devices.</PackageDescription>
+    <Copyright>Copyright (c) 2018 Phillip Hoff. All rights reserved.</Copyright>
+    <PackageLicenseUrl>https://github.com/philliphoff/RokuDotNet/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>roku</PackageTags>
+    <PackageProjectUrl>https://github.com/philliphoff/RokuDotNet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/philliphoff/RokuDotNet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>master</RepositoryBranch>
+  </PropertyGroup>
+
 </Project>
