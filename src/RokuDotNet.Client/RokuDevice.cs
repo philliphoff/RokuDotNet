@@ -15,19 +15,19 @@ namespace RokuDotNet.Client
     {
         private readonly HttpClient client = new HttpClient();
 
-        public RokuDevice(Uri location, string serialNumber)
+        public RokuDevice(Uri location, string id)
         {
             this.Location = location ?? throw new ArgumentNullException(nameof(location));
-            this.SerialNumber = serialNumber ?? throw new ArgumentNullException(nameof(serialNumber));
+            this.Id = id ?? throw new ArgumentNullException(nameof(id));
         }
+
+        public Uri Location { get; }
 
         #region IRokuDevice Members
 
         public IRokuDeviceInput Input => this;
 
-        public Uri Location { get; }
-
-        public string SerialNumber { get; }
+        public string Id { get; }
 
         public IRokuDeviceQuery Query => this;
 

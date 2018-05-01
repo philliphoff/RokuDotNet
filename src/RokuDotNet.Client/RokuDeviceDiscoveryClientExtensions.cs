@@ -11,9 +11,9 @@ namespace RokuDotNet.Client
             IRokuDevice device = null;
 
             await client.DiscoverDevicesAsync(
-                discoveredDevice =>
+                context =>
                 {
-                    device = discoveredDevice;
+                    device = context.Device;
 
                     return Task.FromResult(true);
                 });
@@ -26,11 +26,11 @@ namespace RokuDotNet.Client
             IRokuDevice device = null;
 
             await client.DiscoverDevicesAsync(
-                discoveredDevice =>
+                context =>
                 {
-                    if (StringComparer.OrdinalIgnoreCase.Equals(discoveredDevice.SerialNumber, serialNumber))
+                    if (StringComparer.OrdinalIgnoreCase.Equals(context.SerialNumber, serialNumber))
                     {
-                        device = discoveredDevice;
+                        device = context.Device;
 
                         return Task.FromResult(true);
                     }
