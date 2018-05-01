@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RokuDotNet.Client.Input
 {
-    public interface IRokuDeviceInputApi
+    public interface IRokuDeviceInput
     {
         Task KeyDownAsync(SpecialKeys key, CancellationToken cancellationToken = default(CancellationToken));
         Task KeyDownAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
