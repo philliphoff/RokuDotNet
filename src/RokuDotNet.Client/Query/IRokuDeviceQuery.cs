@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RokuDotNet.Client.Query
 {
-    public interface IRokuDeviceQueryApi
+    public interface IRokuDeviceQuery
     {
         Task<GetActiveAppResult> GetActiveAppAsync(CancellationToken cancellationToken = default(CancellationToken));
 

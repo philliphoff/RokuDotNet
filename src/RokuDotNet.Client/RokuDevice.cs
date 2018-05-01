@@ -11,85 +11,85 @@ using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDevice : IRokuDevice, IRokuDeviceInputApi, IRokuDeviceQueryApi
+    public sealed class RokuDevice : IRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
     {
         private readonly HttpClient client = new HttpClient();
 
-        public RokuDevice(Uri location, string serialNumber)
+        public RokuDevice(Uri location, string id)
         {
             this.Location = location ?? throw new ArgumentNullException(nameof(location));
-            this.SerialNumber = serialNumber ?? throw new ArgumentNullException(nameof(serialNumber));
+            this.Id = id ?? throw new ArgumentNullException(nameof(id));
         }
-
-        #region IRokuDevice Members
-
-        public IRokuDeviceInputApi InputApi => this;
 
         public Uri Location { get; }
 
-        public string SerialNumber { get; }
+        #region IRokuDevice Members
 
-        public IRokuDeviceQueryApi QueryApi => this;
+        public IRokuDeviceInput Input => this;
+
+        public string Id { get; }
+
+        public IRokuDeviceQuery Query => this;
 
         #endregion
 
-        #region IRokuDeviceInputApi Members
+        #region IRokuDeviceInput Members
 
-        Task IRokuDeviceInputApi.KeyDownAsync(SpecialKeys key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyDownAsync(SpecialKeys key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keydown", key, cancellationToken);
         }
 
-        Task IRokuDeviceInputApi.KeyDownAsync(char key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyDownAsync(char key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keydown", key, cancellationToken);
         }
 
-        Task IRokuDeviceInputApi.KeyPressAsync(SpecialKeys key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyPressAsync(SpecialKeys key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keypress", key, cancellationToken);
         }
 
-        Task IRokuDeviceInputApi.KeyPressAsync(char key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyPressAsync(char key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keypress", key, cancellationToken);
         }
 
-        Task IRokuDeviceInputApi.KeyUpAsync(SpecialKeys key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyUpAsync(SpecialKeys key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keyup", key, cancellationToken);
         }
 
-        Task IRokuDeviceInputApi.KeyUpAsync(char key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyUpAsync(char key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keyup", key, cancellationToken);
         }
 
         #endregion
 
-        #region IRokuDeviceQueryApi Members
+        #region IRokuDeviceQuery Members
 
-        Task<GetActiveAppResult> IRokuDeviceQueryApi.GetActiveAppAsync(CancellationToken cancellationToken)
+        Task<GetActiveAppResult> IRokuDeviceQuery.GetActiveAppAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<GetActiveAppResult>("query/active-app");
         }
 
-        Task<GetActiveTvChannelResult> IRokuDeviceQueryApi.GetActiveTvChannelAsync(CancellationToken cancellationToken)
+        Task<GetActiveTvChannelResult> IRokuDeviceQuery.GetActiveTvChannelAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<GetActiveTvChannelResult>("query/tv-active-channel");
         }
 
-        Task<GetAppsResult> IRokuDeviceQueryApi.GetAppsAsync(CancellationToken cancellationToken)
+        Task<GetAppsResult> IRokuDeviceQuery.GetAppsAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<GetAppsResult>("query/apps");
         }
 
-        Task<DeviceInfo> IRokuDeviceQueryApi.GetDeviceInfoAsync(CancellationToken cancellationToken)
+        Task<DeviceInfo> IRokuDeviceQuery.GetDeviceInfoAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<DeviceInfo>("query/device-info");
         }
 
-        Task<GetTvChannelsResult> IRokuDeviceQueryApi.GetTvChannelsAsync(CancellationToken cancellationToken)
+        Task<GetTvChannelsResult> IRokuDeviceQuery.GetTvChannelsAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<GetTvChannelsResult>("query/tv-channels");
         }

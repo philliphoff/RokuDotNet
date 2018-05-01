@@ -6,12 +6,10 @@ namespace RokuDotNet.Client
 {
     public interface IRokuDevice
     {
-        IRokuDeviceInputApi InputApi { get; }
+        string Id { get; }
 
-        Uri Location { get; }
+        IRokuDeviceInput Input { get; }
 
-        IRokuDeviceQueryApi QueryApi { get; }
-
-        string SerialNumber { get; }
+        IRokuDeviceQuery Query { get; }
     }
 }
