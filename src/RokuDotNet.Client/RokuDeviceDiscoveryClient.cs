@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -29,8 +32,12 @@ namespace RokuDotNet.Client
 "";
             var bytes = Encoding.UTF8.GetBytes(discoverRequest);
 
+            var ip= NetworkInterface.GetAllNetworkInterfaces().First(a => a.OperationalStatus == OperationalStatus.Up).GetIPProperties().UnicastAddresses.First(a => a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).Address;
+
             using (var udpClient = new UdpClient())
             {
+                udpClient.Client.Bind(new IPEndPoint(ip, 0));
+
                 await udpClient.SendAsync(bytes, bytes.Length, "239.255.255.250", 1900).ConfigureAwait(false);
 
                 while (!cancellationToken.IsCancellationRequested)
