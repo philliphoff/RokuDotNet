@@ -4,7 +4,7 @@ using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public interface IRokuDevice
+    public interface IRokuDevice : IRokuDeviceInput, IRokuDeviceQuery
     {
         string Id { get; }
 
