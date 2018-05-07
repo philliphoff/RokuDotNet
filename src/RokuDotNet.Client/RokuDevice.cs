@@ -32,6 +32,8 @@ namespace RokuDotNet.Client
 
         public IRokuDeviceQuery Query => this;
 
+        public IRokuDeviceAction Action => this;
+
         #endregion
 
         #region IRokuDeviceInput Members
