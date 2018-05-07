@@ -68,6 +68,9 @@ namespace RokuDotNet.Client.Input
         [SpecialKeyEncoding("PowerOff")]
         PowerOff,
 
+        [SpecialKeyEncoding("PowerOn")]
+        PowerOn,
+
         // Supported when watching the TV tuner
 
         [SpecialKeyEncoding("ChannelUp")]

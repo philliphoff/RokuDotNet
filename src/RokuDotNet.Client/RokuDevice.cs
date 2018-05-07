@@ -6,12 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Serialization;
+using RokuDotNet.Client.Action;
 using RokuDotNet.Client.Input;
 using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDevice : IRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
+    public sealed class RokuDevice : IRokuDevice, IRokuDeviceInput, IRokuDeviceQuery, IRokuDeviceAction
     {
         private readonly HttpClient client = new HttpClient();
 
@@ -30,6 +31,8 @@ namespace RokuDotNet.Client
         public string Id { get; }
 
         public IRokuDeviceQuery Query => this;
+
+        public IRokuDeviceAction Action => this;
 
         #endregion
 
@@ -96,6 +99,20 @@ namespace RokuDotNet.Client
 
         #endregion
 
+        #region IRokuDeviceAction Members
+
+        Task IRokuDeviceAction.Launch(string appId, System.Collections.Specialized.NameValueCollection nvc)
+        {
+            return this.GetAsync<string>($"launch/{appId}?{nvc}");
+        }
+
+        #endregion
+
+        private Task PostAsync(string relativeUrl)
+        {
+            return this.client.PostAsync(new Uri(this.Location, relativeUrl), new StringContent(""));
+        }
+
         private Task KeyInputAsync(string inputType, SpecialKeys key, CancellationToken cancellationToken)
         {
             return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeSpecialKey(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
@@ -115,7 +132,7 @@ namespace RokuDotNet.Client
             using (var stream = await this.client.GetStreamAsync(new Uri(this.Location, relativeUrl)).ConfigureAwait(false))
             {
                 return Deserialize<T>(stream);
-            }            
+            }
         }
 
         private static T Deserialize<T>(Stream stream)
