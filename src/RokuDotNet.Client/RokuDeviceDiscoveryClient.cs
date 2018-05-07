@@ -24,8 +24,8 @@ namespace RokuDotNet.Client
 
         public void DiscoverDevicesAsync(Func<DiscoveredDeviceContext, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
         {
-
-            var ips= NetworkInterface.GetAllNetworkInterfaces().First(a => a.OperationalStatus == OperationalStatus.Up).GetIPProperties().UnicastAddresses.Where(a => a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).Select(a => a.Address);
+            //all interfaces which are up, then every IPv4 address for each interface
+            var ips= NetworkInterface.GetAllNetworkInterfaces().Where(a => a.OperationalStatus == OperationalStatus.Up).SelectMany(a=>a.GetIPProperties().UnicastAddresses.Where(b => b.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)).Select(a => a.Address);
 
             foreach (var ip in ips)
             {
