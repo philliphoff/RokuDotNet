@@ -17,12 +17,26 @@ namespace RokuDotNet.Client
 
         public event EventHandler<DeviceDiscoveredEventArgs> DeviceDiscovered;
 
-        public Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public void DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return this.DiscoverDevicesAsync(null, cancellationToken);
+            DiscoverDevicesAsync(null, cancellationToken);
         }
 
-        public async Task DiscoverDevicesAsync(Func<DiscoveredDeviceContext, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
+        public void DiscoverDevicesAsync(Func<DiscoveredDeviceContext, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
+        {
+
+            var ips= NetworkInterface.GetAllNetworkInterfaces().First(a => a.OperationalStatus == OperationalStatus.Up).GetIPProperties().UnicastAddresses.Where(a => a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).Select(a => a.Address);
+
+            foreach (var ip in ips)
+            {
+                Task.Run(() => Discover(ip, cancellationToken, onDeviceDiscovered));
+            }
+
+        }
+
+        #endregion
+
+        private async void Discover(IPAddress ip, CancellationToken cancellationToken, Func<DiscoveredDeviceContext, Task<bool>> onDeviceDiscovered)
         {
             string discoverRequest =
 "M-SEARCH * HTTP/1.1\n" +
@@ -31,8 +45,6 @@ namespace RokuDotNet.Client
 "ST: roku:ecp\n" +
 "";
             var bytes = Encoding.UTF8.GetBytes(discoverRequest);
-
-            var ip= NetworkInterface.GetAllNetworkInterfaces().First(a => a.OperationalStatus == OperationalStatus.Up).GetIPProperties().UnicastAddresses.First(a => a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).Address;
 
             using (var udpClient = new UdpClient())
             {
@@ -51,11 +63,11 @@ namespace RokuDotNet.Client
                             }
                             catch (ObjectDisposedException)
                             {
-                                // NOTE: We assume that a disposal exception is an attempt to cancel an
-                                //       outstanding ReceiveAsync() by closing the socket (disposing the
-                                //       UdpClient).
+                                    // NOTE: We assume that a disposal exception is an attempt to cancel an
+                                    //       outstanding ReceiveAsync() by closing the socket (disposing the
+                                    //       UdpClient).
 
-                                throw new OperationCanceledException();
+                                    throw new OperationCanceledException();
                             }
                         });
 
@@ -110,8 +122,6 @@ namespace RokuDotNet.Client
                 }
             }
         }
-
-        #endregion
 
         private async Task<HttpResponse> ParseResponseAsync(byte[] response)
         {
