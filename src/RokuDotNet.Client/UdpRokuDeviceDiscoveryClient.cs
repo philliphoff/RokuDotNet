@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDeviceDiscoveryClient : IRokuDeviceDiscoveryClient
+    public sealed class UdpRokuDeviceDiscoveryClient : IRokuDeviceDiscoveryClient
     {
         #region IRokuDeviceDiscoveryClient Members
 
@@ -77,7 +77,7 @@ namespace RokuDotNet.Client
                         && Uri.TryCreate(location, UriKind.Absolute, out Uri locationUri)
                         && response.Headers.TryGetValue("USN", out string serialNumber))
                     {
-                        var device = new RokuDevice(locationUri, serialNumber);
+                        var device = new HttpRokuDevice(serialNumber, locationUri);
 
                         bool cancelDiscovery = false;
 

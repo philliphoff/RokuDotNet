@@ -11,14 +11,16 @@ using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDevice : IRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
+    public sealed class HttpRokuDevice : IRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
     {
-        private readonly HttpClient client = new HttpClient();
+        private readonly HttpClient client;
 
-        public RokuDevice(Uri location, string id)
+        public HttpRokuDevice(string id, Uri location, HttpMessageHandler handler = null)
         {
-            this.Location = location ?? throw new ArgumentNullException(nameof(location));
             this.Id = id ?? throw new ArgumentNullException(nameof(id));
+            this.Location = location ?? throw new ArgumentNullException(nameof(location));
+
+            this.client = handler != null ? new HttpClient(handler) : new HttpClient();
         }
 
         public Uri Location { get; }
@@ -92,6 +94,15 @@ namespace RokuDotNet.Client
         Task<GetTvChannelsResult> IRokuDeviceQuery.GetTvChannelsAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<GetTvChannelsResult>("query/tv-channels");
+        }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            this.client.Dispose();
         }
 
         #endregion
