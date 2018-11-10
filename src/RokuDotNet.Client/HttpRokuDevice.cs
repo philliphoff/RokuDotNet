@@ -11,7 +11,7 @@ using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class HttpRokuDevice : IRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
+    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
     {
         private readonly HttpClient client;
 
@@ -23,7 +23,11 @@ namespace RokuDotNet.Client
             this.client = handler != null ? new HttpClient(handler) : new HttpClient();
         }
 
+        #region IHttpRokuDevice Members
+
         public Uri Location { get; }
+
+        #endregion
 
         #region IRokuDevice Members
 
