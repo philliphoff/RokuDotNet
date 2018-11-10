@@ -2,21 +2,15 @@ using System;
 
 namespace RokuDotNet.Client
 {
-    public sealed class DeviceDiscoveredEventArgs : EventArgs
+    public class DeviceDiscoveredEventArgs : EventArgs
     {
-        public DeviceDiscoveredEventArgs(IRokuDevice device, Uri location, string serialNumber)
+        public DeviceDiscoveredEventArgs(DiscoveredDeviceContext context)
         {
-            this.Device = device ?? throw new ArgumentNullException(nameof(device));
-            this.Location = location ?? throw new ArgumentNullException(nameof(location));
-            this.SerialNumber = serialNumber ?? throw new ArgumentNullException(nameof(serialNumber));
+            this.Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public bool CancelDiscovery { get; set; }
 
-        public IRokuDevice Device { get; }
-
-        public Uri Location { get; }
-
-        public string SerialNumber { get; }
+        public DiscoveredDeviceContext Context { get; }
     }
 }

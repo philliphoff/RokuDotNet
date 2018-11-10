@@ -8,11 +8,26 @@ using System.Threading.Tasks;
 
 namespace RokuDotNet.Client
 {
-    public sealed class RokuDeviceDiscoveryClient : IRokuDeviceDiscoveryClient
+    public sealed class UdpRokuDeviceDiscoveryClient : IRokuDeviceDiscoveryClient
     {
+        private EventHandler<DeviceDiscoveredEventArgs> baseDeviceDiscovered;
+
+        public event EventHandler<HttpDeviceDiscoveredEventArgs> DeviceDiscovered;
+
         #region IRokuDeviceDiscoveryClient Members
 
-        public event EventHandler<DeviceDiscoveredEventArgs> DeviceDiscovered;
+        event EventHandler<DeviceDiscoveredEventArgs> IRokuDeviceDiscoveryClient.DeviceDiscovered
+        {
+            add
+            {
+                this.baseDeviceDiscovered += value;
+            }
+
+            remove
+            {
+                this.baseDeviceDiscovered -= value;
+            }
+        }
 
         public Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -77,16 +92,17 @@ namespace RokuDotNet.Client
                         && Uri.TryCreate(location, UriKind.Absolute, out Uri locationUri)
                         && response.Headers.TryGetValue("USN", out string serialNumber))
                     {
-                        var device = new RokuDevice(locationUri, serialNumber);
+                        var device = new HttpRokuDevice(serialNumber, locationUri);
 
                         bool cancelDiscovery = false;
+                        var context = new HttpDiscoveredDeviceContext(device, serialNumber);
 
                         if (onDeviceDiscovered != null)
                         {
-                            cancelDiscovery = await onDeviceDiscovered(new DiscoveredDeviceContext(device, locationUri, serialNumber)).ConfigureAwait(false);
+                            cancelDiscovery = await onDeviceDiscovered(context).ConfigureAwait(false);
                         }
 
-                        var args = new DeviceDiscoveredEventArgs(device, locationUri, serialNumber)
+                        var args = new HttpDeviceDiscoveredEventArgs(context)
                         {
                             CancelDiscovery = cancelDiscovery
                         };
@@ -94,6 +110,15 @@ namespace RokuDotNet.Client
                         this.DeviceDiscovered?.Invoke(this, args);
 
                         cancelDiscovery = args.CancelDiscovery;
+
+                        var baseArgs = new DeviceDiscoveredEventArgs(context)
+                        {
+                            CancelDiscovery = cancelDiscovery
+                        };
+
+                        this.baseDeviceDiscovered?.Invoke(this, baseArgs);
+
+                        cancelDiscovery = baseArgs.CancelDiscovery;
 
                         if (cancelDiscovery)
                         {
