@@ -68,6 +68,12 @@ namespace RokuDotNet.Client.Input
         [SpecialKeyEncoding("PowerOff")]
         PowerOff,
 
+        /// <remarks>
+        /// This key is not officially listed in the Roku External Control API.
+        /// </remarks>
+        [SpecialKeyEncoding("PowerOn")]
+        PowerOn,
+
         // Supported when watching the TV tuner
 
         [SpecialKeyEncoding("ChannelUp")]
