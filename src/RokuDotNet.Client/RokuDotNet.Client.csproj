@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.4</AssemblyVersion>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.5</AssemblyVersion>
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(AssemblyVersion).0</PackageVersion>
     <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">$(PackageVersion)</AssemblyFileVersion>
   </PropertyGroup>

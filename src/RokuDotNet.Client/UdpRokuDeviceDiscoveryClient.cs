@@ -14,27 +14,7 @@ namespace RokuDotNet.Client
 
         public event EventHandler<HttpDeviceDiscoveredEventArgs> DeviceDiscovered;
 
-        #region IRokuDeviceDiscoveryClient Members
-
-        event EventHandler<DeviceDiscoveredEventArgs> IRokuDeviceDiscoveryClient.DeviceDiscovered
-        {
-            add
-            {
-                this.baseDeviceDiscovered += value;
-            }
-
-            remove
-            {
-                this.baseDeviceDiscovered -= value;
-            }
-        }
-
-        public Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return this.DiscoverDevicesAsync(null, cancellationToken);
-        }
-
-        public async Task DiscoverDevicesAsync(Func<DiscoveredDeviceContext, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DiscoverDevicesAsync(Func<HttpDiscoveredDeviceContext, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
         {
             string discoverRequest =
 "M-SEARCH * HTTP/1.1\n" +
@@ -127,6 +107,36 @@ namespace RokuDotNet.Client
                     }
                 }
             }
+        }
+
+        #region IRokuDeviceDiscoveryClient Members
+
+        event EventHandler<DeviceDiscoveredEventArgs> IRokuDeviceDiscoveryClient.DeviceDiscovered
+        {
+            add
+            {
+                this.baseDeviceDiscovered += value;
+            }
+
+            remove
+            {
+                this.baseDeviceDiscovered -= value;
+            }
+        }
+
+        public Task DiscoverDevicesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return this.DiscoverDevicesAsync(null, cancellationToken);
+        }
+
+        public Task DiscoverDevicesAsync(Func<DiscoveredDeviceContext, Task<bool>> onDeviceDiscovered, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return this.DiscoverDevicesAsync(
+                (HttpDiscoveredDeviceContext httpContext) =>
+                {
+                    return onDeviceDiscovered(httpContext);
+                },
+                cancellationToken);
         }
 
         #endregion
