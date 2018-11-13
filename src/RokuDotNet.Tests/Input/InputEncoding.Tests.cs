@@ -29,6 +29,7 @@ namespace RokuDotNet.Tests.Input
         [InlineData("VolumeMute", null, SpecialKeys.VolumeMute)]
         [InlineData("VolumeUp", null, SpecialKeys.VolumeUp)]
         [InlineData("PowerOff", null, SpecialKeys.PowerOff)]
+        [InlineData("PowerOn", null, SpecialKeys.PowerOn)]
         [InlineData("ChannelUp", null, SpecialKeys.ChannelUp)]
         [InlineData("ChannelDown", null, SpecialKeys.ChannelDown)]
         [InlineData("InputTuner", null, SpecialKeys.InputTuner)]
