@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -10,7 +11,14 @@ namespace RokuDotNet.Client
 {
     public sealed class UdpRokuDeviceDiscoveryClient : IRokuDeviceDiscoveryClient
     {
+        private readonly HttpMessageHandler handler;
+
         private EventHandler<DeviceDiscoveredEventArgs> baseDeviceDiscovered;
+
+        public UdpRokuDeviceDiscoveryClient(HttpMessageHandler handler = null)
+        {
+            this.handler = handler;
+        }
 
         public event EventHandler<HttpDeviceDiscoveredEventArgs> DeviceDiscovered;
 
@@ -70,9 +78,13 @@ namespace RokuDotNet.Client
                         && stHeader == "roku:ecp"
                         && response.Headers.TryGetValue("LOCATION", out string location)
                         && Uri.TryCreate(location, UriKind.Absolute, out Uri locationUri)
-                        && response.Headers.TryGetValue("USN", out string serialNumber))
+                        && response.Headers.TryGetValue("USN", out string usn))
                     {
-                        var device = new HttpRokuDevice(serialNumber, locationUri);
+                        var serialNumber = usn.StartsWith("uuid:roku:ecp:")
+                            ? usn.Substring("uuid:roku:ecp:".Length)
+                            : usn;
+
+                        var device = new HttpRokuDevice(serialNumber, locationUri, this.handler);
 
                         bool cancelDiscovery = false;
                         var context = new HttpDiscoveredDeviceContext(device, serialNumber);
