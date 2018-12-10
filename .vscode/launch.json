@@ -5,10 +5,10 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": ".NET Core Launch (Tests)",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build-tests",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/RokuDotNet.Tests/bin/Debug/netcoreapp2.0/RokuDotNet.Tests.dll",
             "args": [],
@@ -19,10 +19,18 @@
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": ".NET Core Attach",
+            "name": ".NET Core Launch (Sample)",
             "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
+            "request": "launch",
+            "preLaunchTask": "build-sample",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/sample/bin/Debug/netcoreapp2.1/RokuDotNet.Sample.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/sample",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
         }
-    ,]
+    ]
 }
