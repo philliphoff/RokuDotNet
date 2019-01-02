@@ -8,8 +8,6 @@ namespace RokuDotNet.Sample
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-
             var discoveryClient = new UdpRokuDeviceDiscoveryClient();
 
             var device = await discoveryClient.DiscoverFirstDeviceAsync();
