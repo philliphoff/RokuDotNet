@@ -56,9 +56,29 @@ namespace RokuDotNet.Client
             return this.KeyInputAsync("keypress", key, cancellationToken);
         }
 
+        async Task IRokuDeviceInput.KeyPressAsync(SpecialKeys[] keys, CancellationToken cancellationToken)
+        {
+            var input = (IRokuDeviceInput)this;
+
+            foreach (var key in keys)
+            {
+                await input.KeyPressAsync(key, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         Task IRokuDeviceInput.KeyPressAsync(char key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keypress", key, cancellationToken);
+        }
+
+        async Task IRokuDeviceInput.KeyPressAsync(char[] keys, CancellationToken cancellationToken)
+        {
+            var input = (IRokuDeviceInput)this;
+
+            foreach (var key in keys)
+            {
+                await input.KeyPressAsync(key, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         Task IRokuDeviceInput.KeyUpAsync(SpecialKeys key, CancellationToken cancellationToken)
