@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -41,46 +42,27 @@ namespace RokuDotNet.Client
 
         #region IRokuDeviceInput Members
 
-        Task IRokuDeviceInput.KeyDownAsync(SpecialKeys key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyDownAsync(PressedKey key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keydown", key, cancellationToken);
         }
 
-        Task IRokuDeviceInput.KeyDownAsync(char key, CancellationToken cancellationToken)
-        {
-            return this.KeyInputAsync("keydown", key, cancellationToken);
-        }
-
-        Task IRokuDeviceInput.KeyPressAsync(SpecialKeys key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyPressAsync(PressedKey key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keypress", key, cancellationToken);
         }
 
-        Task IRokuDeviceInput.KeyPressAsync(char key, CancellationToken cancellationToken)
-        {
-            return this.KeyInputAsync("keypress", key, cancellationToken);
-        }
-
-        async Task IRokuDeviceInput.KeyPressAsync(PressedKey[] keys, CancellationToken cancellationToken)
+        async Task IRokuDeviceInput.KeyPressAsync(IEnumerable<PressedKey> keys, CancellationToken cancellationToken)
         {
             var input = (IRokuDeviceInput)this;
 
             foreach (var key in keys)
             {
-                await key
-                    .Match(
-                        specialKey => input.KeyPressAsync(specialKey, cancellationToken),
-                        charKey => input.KeyPressAsync(charKey, cancellationToken))
-                    .ConfigureAwait(false);
+                await input.KeyPressAsync(key, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        Task IRokuDeviceInput.KeyUpAsync(SpecialKeys key, CancellationToken cancellationToken)
-        {
-            return this.KeyInputAsync("keyup", key, cancellationToken);
-        }
-
-        Task IRokuDeviceInput.KeyUpAsync(char key, CancellationToken cancellationToken)
+        Task IRokuDeviceInput.KeyUpAsync(PressedKey key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keyup", key, cancellationToken);
         }
@@ -125,14 +107,10 @@ namespace RokuDotNet.Client
 
         #endregion
 
-        private Task KeyInputAsync(string inputType, SpecialKeys key, CancellationToken cancellationToken)
+        private Task KeyInputAsync(string inputType, PressedKey key, CancellationToken cancellationToken)
         {
-            return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeSpecialKey(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
-        }
-
-        private Task KeyInputAsync(string inputType, char key, CancellationToken cancellationToken)
-        {
-            return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{InputEncoding.EncodeChar(key)}"), new ByteArrayContent(new byte[] {}), cancellationToken);
+            string encodedKey = key.Match(InputEncoding.EncodeSpecialKey, InputEncoding.EncodeChar);
+            return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{encodedKey}"), new ByteArrayContent(new byte[] {}), cancellationToken);
         }
 
         private async Task<T> GetAsync<T>(string relativeUrl)
