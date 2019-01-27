@@ -15,6 +15,35 @@ namespace RokuDotNet.Tests
     public sealed class HttpRokuDeviceTests
     {
         [Fact]
+        public Task InputKeyPressLiteralKey()
+        {
+            return this.InputKeyPressTest('z', "Lit_z");
+        }
+
+        [Fact]
+        public Task InputKeyPressSpecialKey()
+        {
+            return this.InputKeyPressTest(SpecialKeys.VolumeUp, "VolumeUp");
+        }
+
+        private async Task InputKeyPressTest(PressedKey key, string relativeUrl)
+        {
+            var handler = new HttpMessageHandlerMock(MockBehavior.Strict);
+
+            Expression<Func<HttpRequestMessage, bool>> volumeUpRequest =
+                message => message.Method == HttpMethod.Post
+                    && message.RequestUri == new Uri(new Uri("http://localhost/keypress/"), relativeUrl);
+
+            handler.SetupSendAsync(volumeUpRequest, new HttpResponseMessage(HttpStatusCode.OK));
+
+            var client = new HttpRokuDevice("deviceId", new Uri("http://localhost"), handler.Object);
+
+            await client.Input.KeyPressAsync(key);
+
+            handler.VerifySendAsync(Times.Exactly(1));
+        }
+
+        [Fact]
         public async Task InputKeyPressMultipleKeys()
         {
             var handler = new HttpMessageHandlerMock(MockBehavior.Strict);
