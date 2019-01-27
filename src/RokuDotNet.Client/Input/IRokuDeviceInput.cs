@@ -9,10 +9,8 @@ namespace RokuDotNet.Client.Input
         Task KeyDownAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
 
         Task KeyPressAsync(SpecialKeys key, CancellationToken cancellationToken = default(CancellationToken));
-        Task KeyPressAsync(SpecialKeys[] keys, CancellationToken cancellationToken = default(CancellationToken));
-
         Task KeyPressAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
-        Task KeyPressAsync(char[] keys, CancellationToken cancellationToken = default(CancellationToken));
+        Task KeyPressAsync(PressedKey[] keys, CancellationToken cancellationToken = default(CancellationToken));
 
         Task KeyUpAsync(SpecialKeys key, CancellationToken cancellationToken = default(CancellationToken));
         Task KeyUpAsync(char key, CancellationToken cancellationToken = default(CancellationToken));
