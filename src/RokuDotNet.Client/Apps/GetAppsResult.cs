@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace RokuDotNet.Client.Query
+namespace RokuDotNet.Client.Apps
 {
     [XmlRoot("apps")]
     public sealed class GetAppsResult

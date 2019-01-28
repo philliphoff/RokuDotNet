@@ -12,7 +12,7 @@ namespace RokuDotNet.Sample
 
             var device = await discoveryClient.DiscoverFirstDeviceAsync();
 
-            var result = await device.Query.GetAppsAsync();
+            var result = await device.Apps.GetAppsAsync();
         }
     }
 }

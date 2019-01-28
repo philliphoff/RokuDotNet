@@ -46,6 +46,26 @@ namespace RokuDotNet.Client
 
         #region IRokuDeviceApps Members
 
+        Task<GetActiveAppResult> IRokuDeviceApps.GetActiveAppAsync(CancellationToken cancellationToken)
+        {
+            return this.GetAsync<GetActiveAppResult>("query/active-app");
+        }
+
+        Task<GetActiveTvChannelResult> IRokuDeviceApps.GetActiveTvChannelAsync(CancellationToken cancellationToken)
+        {
+            return this.GetAsync<GetActiveTvChannelResult>("query/tv-active-channel");
+        }
+
+        Task<GetAppsResult> IRokuDeviceApps.GetAppsAsync(CancellationToken cancellationToken)
+        {
+            return this.GetAsync<GetAppsResult>("query/apps");
+        }
+
+        Task<GetTvChannelsResult> IRokuDeviceApps.GetTvChannelsAsync(CancellationToken cancellationToken)
+        {
+            return this.GetAsync<GetTvChannelsResult>("query/tv-channels");
+        }
+
         Task IRokuDeviceApps.InstallAppAsync(string appId, CancellationToken cancellationToken )
         {
             return this.InstallAppCoreAsync(appId, null, cancellationToken);
@@ -109,29 +129,9 @@ namespace RokuDotNet.Client
 
         #region IRokuDeviceQuery Members
 
-        Task<GetActiveAppResult> IRokuDeviceQuery.GetActiveAppAsync(CancellationToken cancellationToken)
-        {
-            return this.GetAsync<GetActiveAppResult>("query/active-app");
-        }
-
-        Task<GetActiveTvChannelResult> IRokuDeviceQuery.GetActiveTvChannelAsync(CancellationToken cancellationToken)
-        {
-            return this.GetAsync<GetActiveTvChannelResult>("query/tv-active-channel");
-        }
-
-        Task<GetAppsResult> IRokuDeviceQuery.GetAppsAsync(CancellationToken cancellationToken)
-        {
-            return this.GetAsync<GetAppsResult>("query/apps");
-        }
-
         Task<DeviceInfo> IRokuDeviceQuery.GetDeviceInfoAsync(CancellationToken cancellationToken)
         {
             return this.GetAsync<DeviceInfo>("query/device-info");
-        }
-
-        Task<GetTvChannelsResult> IRokuDeviceQuery.GetTvChannelsAsync(CancellationToken cancellationToken)
-        {
-            return this.GetAsync<GetTvChannelsResult>("query/tv-channels");
         }
 
         #endregion
