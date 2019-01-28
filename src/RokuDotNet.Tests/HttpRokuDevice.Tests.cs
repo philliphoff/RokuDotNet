@@ -16,6 +16,84 @@ namespace RokuDotNet.Tests
     public sealed class HttpRokuDeviceTests
     {
         [Fact]
+        public Task GetDeviceInfoTest()
+        {
+            return this.HttpGetTest(
+                device => device.GetDeviceInfoAsync(),
+                "query/device-info",
+                @"<device-info>
+                    <device-id>deviceId</device-id>
+                </device-info>",
+                result => Assert.Equal("deviceId", result.DeviceId));
+        }
+
+        [Fact]
+        public Task AppsGetActiveAppTest()
+        {
+            return this.HttpGetTest(
+                device => device.Apps.GetActiveAppAsync(),
+                "query/active-app",
+                @"<active-app>
+                    <app>appName</app>
+                </active-app>",
+                result => Assert.Equal("appName", result.ActiveApp.Name));
+        }
+
+        [Fact]
+        public Task AppsGetActiveTvChannelTest()
+        {
+            return this.HttpGetTest(
+                device => device.Apps.GetActiveTvChannelAsync(),
+                "query/tv-active-channel",
+                @"<tv-channel>
+                    <channel>
+                        <name>channelName</name>
+                    </channel>
+                </tv-channel>",
+                result => Assert.Equal("channelName", result.ActiveChannel.Name));
+        }
+
+        [Fact]
+        public Task AppsGetAppsTest()
+        {
+            return this.HttpGetTest(
+                device => device.Apps.GetAppsAsync(),
+                "query/apps",
+                @"<apps>
+                    <app>app1</app>
+                    <app>app2</app>
+                </apps>",
+                result =>
+                {
+                    Assert.Equal(2, result.Apps.Length);
+                    Assert.Equal("app1", result.Apps[0].Name);
+                    Assert.Equal("app2", result.Apps[1].Name);
+                });
+        }
+
+        [Fact]
+        public Task AppsGetTvChannelsTest()
+        {
+            return this.HttpGetTest(
+                device => device.Apps.GetTvChannelsAsync(),
+                "query/tv-channels",
+                @"<tv-channels>
+                    <channel>
+                        <name>app1</name>
+                    </channel>
+                    <channel>
+                        <name>app2</name>
+                    </channel>
+                </tv-channels>",
+                result =>
+                {
+                    Assert.Equal(2, result.Channels.Length);
+                    Assert.Equal("app1", result.Channels[0].Name);
+                    Assert.Equal("app2", result.Channels[1].Name);
+                });
+        }
+
+        [Fact]
         public Task AppsInstallAppTest()
         {
             return this.HttpPostTest(device => device.Apps.InstallAppAsync("appId"), "install/appId");
@@ -123,6 +201,25 @@ namespace RokuDotNet.Tests
             handler.VerifySendAsync(Times.Exactly(2));
         }
 
+        private async Task HttpGetTest<TResult>(Func<IRokuDevice, Task<TResult>> inputFunc, string relativeUrl, string xmlResult, Action<TResult> assertResult)
+        {
+            var handler = new HttpMessageHandlerMock(MockBehavior.Strict);
+
+            Expression<Func<HttpRequestMessage, bool>> volumeUpRequest =
+                message => message.Method == HttpMethod.Get
+                    && message.RequestUri == new Uri(new Uri("http://localhost/"), relativeUrl);
+
+            handler.SetupSendAsync(volumeUpRequest, new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(xmlResult) });
+
+            var device = new HttpRokuDevice("deviceId", new Uri("http://localhost"), handler.Object);
+
+            var result = await inputFunc(device);
+
+            handler.VerifySendAsync(Times.Exactly(1));
+
+            assertResult(result);
+        }
+
         private async Task HttpPostTest(Func<IRokuDevice, Task> inputFunc, string relativeUrl)
         {
             var handler = new HttpMessageHandlerMock(MockBehavior.Strict);
@@ -133,9 +230,9 @@ namespace RokuDotNet.Tests
 
             handler.SetupSendAsync(volumeUpRequest, new HttpResponseMessage(HttpStatusCode.OK));
 
-            var client = new HttpRokuDevice("deviceId", new Uri("http://localhost"), handler.Object);
+            var device = new HttpRokuDevice("deviceId", new Uri("http://localhost"), handler.Object);
 
-            await inputFunc(client);
+            await inputFunc(device);
 
             handler.VerifySendAsync(Times.Exactly(1));
         }
