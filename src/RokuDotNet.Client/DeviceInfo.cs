@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace RokuDotNet.Client.Query
+namespace RokuDotNet.Client
 {
     [XmlRoot("device-info")]
     public sealed class DeviceInfo

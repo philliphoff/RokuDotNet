@@ -10,11 +10,10 @@ using System.Web;
 using System.Xml.Serialization;
 using RokuDotNet.Client.Apps;
 using RokuDotNet.Client.Input;
-using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceApps, IRokuDeviceInput, IRokuDeviceQuery
+    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceApps, IRokuDeviceInput
     {
         private readonly HttpClient client;
 
@@ -40,7 +39,10 @@ namespace RokuDotNet.Client
 
         public IRokuDeviceInput Input => this;
 
-        public IRokuDeviceQuery Query => this;
+        public Task<DeviceInfo> GetDeviceInfoAsync(CancellationToken cancellationToken)
+        {
+            return this.GetAsync<DeviceInfo>("query/device-info");
+        }
 
         #endregion
 
@@ -123,15 +125,6 @@ namespace RokuDotNet.Client
         Task IRokuDeviceInput.KeyUpAsync(PressedKey key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keyup", key, cancellationToken);
-        }
-
-        #endregion
-
-        #region IRokuDeviceQuery Members
-
-        Task<DeviceInfo> IRokuDeviceQuery.GetDeviceInfoAsync(CancellationToken cancellationToken)
-        {
-            return this.GetAsync<DeviceInfo>("query/device-info");
         }
 
         #endregion

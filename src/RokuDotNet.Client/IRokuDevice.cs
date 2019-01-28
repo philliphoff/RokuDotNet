@@ -1,7 +1,8 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using RokuDotNet.Client.Apps;
 using RokuDotNet.Client.Input;
-using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
@@ -13,6 +14,6 @@ namespace RokuDotNet.Client
 
         IRokuDeviceInput Input { get; }
 
-        IRokuDeviceQuery Query { get; }
+        Task<DeviceInfo> GetDeviceInfoAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }
