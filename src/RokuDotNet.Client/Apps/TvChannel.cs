@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace RokuDotNet.Client.Query
+namespace RokuDotNet.Client.Apps
 {
     public class TvChannel
     {
