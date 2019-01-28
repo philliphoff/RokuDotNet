@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -8,11 +9,12 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Serialization;
 using RokuDotNet.Client.Input;
+using RokuDotNet.Client.Launch;
 using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceInput, IRokuDeviceQuery
+    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceInput, IRokuDeviceLaunch, IRokuDeviceQuery
     {
         private readonly HttpClient client;
 
@@ -35,6 +37,8 @@ namespace RokuDotNet.Client
         public IRokuDeviceInput Input => this;
 
         public string Id { get; }
+
+        public IRokuDeviceLaunch Launch => this;
 
         public IRokuDeviceQuery Query => this;
 
@@ -65,6 +69,40 @@ namespace RokuDotNet.Client
         Task IRokuDeviceInput.KeyUpAsync(PressedKey key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keyup", key, cancellationToken);
+        }
+
+        #endregion
+
+        #region IRokuDeviceLaunch Members
+
+        Task IRokuDeviceLaunch.InstallAppAsync(string appId, CancellationToken cancellationToken )
+        {
+            return this.InstallAppCoreAsync(appId, null, cancellationToken);
+        }
+    
+        Task IRokuDeviceLaunch.InstallAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            return this.InstallAppCoreAsync(appId, parameters, cancellationToken);
+        }
+
+        Task IRokuDeviceLaunch.LaunchAppAsync(string appId, CancellationToken cancellationToken)
+        {
+            return this.LaunchAppCoreAsync(appId, null, cancellationToken);
+        }
+
+        Task IRokuDeviceLaunch.LaunchAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            return this.LaunchAppCoreAsync(appId, parameters, cancellationToken);
+        }
+
+        Task IRokuDeviceLaunch.LaunchTvInputAsync(CancellationToken cancellationToken)
+        {
+            return this.LaunchTvInputCoreAsync(null, cancellationToken);
+        }
+
+        Task IRokuDeviceLaunch.LaunchTvInputAsync(string channel, CancellationToken cancellationToken)
+        {
+            return this.LaunchTvInputCoreAsync(new Dictionary<string, string>{ { "ch", channel } }, cancellationToken);
         }
 
         #endregion
@@ -107,10 +145,39 @@ namespace RokuDotNet.Client
 
         #endregion
 
+        private Task InstallAppCoreAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            string relativeUrl = $"install/{appId}{this.CreateQueryString(parameters)}";
+
+            return this.PostAsync(relativeUrl, cancellationToken);
+        }
+
+        private Task LaunchAppCoreAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            string relativeUrl = $"launch/{appId}{this.CreateQueryString(parameters)}";
+
+            return this.PostAsync(relativeUrl, cancellationToken);
+        }
+
+        private Task LaunchTvInputCoreAsync(IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            return this.LaunchAppCoreAsync("tvinput.dtv", parameters, cancellationToken);
+        }
+
+        private string CreateQueryString(IDictionary<string, string> parameters)
+        {
+            if (parameters != null && parameters.Any())
+            {
+                return "?" + String.Join("&", parameters.Select(parameter => $"{HttpUtility.UrlEncode(parameter.Key)}={HttpUtility.UrlEncode(parameter.Value)}"));
+            }
+
+            return String.Empty;
+        }
+
         private Task KeyInputAsync(string inputType, PressedKey key, CancellationToken cancellationToken)
         {
             string encodedKey = key.Match(InputEncoding.EncodeSpecialKey, InputEncoding.EncodeChar);
-            return this.client.PostAsync(new Uri(this.Location, $"{inputType}/{encodedKey}"), new ByteArrayContent(new byte[] {}), cancellationToken);
+            return this.PostAsync($"{inputType}/{encodedKey}", cancellationToken);
         }
 
         private async Task<T> GetAsync<T>(string relativeUrl)
@@ -123,6 +190,13 @@ namespace RokuDotNet.Client
             {
                 return Deserialize<T>(stream);
             }            
+        }
+
+        private async Task PostAsync(string relativeUrl, CancellationToken cancellationToken)
+        {
+            var result = await this.client.PostAsync(new Uri(this.Location, relativeUrl), new ByteArrayContent(new byte[] {}), cancellationToken).ConfigureAwait(false);
+
+            result.EnsureSuccessStatusCode();
         }
 
         private static T Deserialize<T>(Stream stream)

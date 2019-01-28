@@ -9,6 +9,7 @@ using Xunit;
 using System.Net;
 using System.Threading;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace RokuDotNet.Tests
 {
@@ -17,37 +18,37 @@ namespace RokuDotNet.Tests
         [Fact]
         public Task InputKeyDownLiteralKey()
         {
-            return this.InputKeyPressTest(input => input.KeyDownAsync('z'), "keydown/Lit_z");
+            return this.HttpPostTest(device => device.Input.KeyDownAsync('z'), "keydown/Lit_z");
         }
 
         [Fact]
         public Task InputKeyDownSpecialKey()
         {
-            return this.InputKeyPressTest(input => input.KeyDownAsync(SpecialKeys.VolumeUp), "keydown/VolumeUp");
+            return this.HttpPostTest(device => device.Input.KeyDownAsync(SpecialKeys.VolumeUp), "keydown/VolumeUp");
         }
 
         [Fact]
         public Task InputKeyPressLiteralKey()
         {
-            return this.InputKeyPressTest(input => input.KeyPressAsync('z'), "keypress/Lit_z");
+            return this.HttpPostTest(device => device.Input.KeyPressAsync('z'), "keypress/Lit_z");
         }
 
         [Fact]
         public Task InputKeyPressSpecialKey()
         {
-            return this.InputKeyPressTest(input => input.KeyPressAsync(SpecialKeys.VolumeUp), "keypress/VolumeUp");
+            return this.HttpPostTest(device => device.Input.KeyPressAsync(SpecialKeys.VolumeUp), "keypress/VolumeUp");
         }
 
         [Fact]
         public Task InputKeyUpLiteralKey()
         {
-            return this.InputKeyPressTest(input => input.KeyUpAsync('z'), "keyup/Lit_z");
+            return this.HttpPostTest(device => device.Input.KeyUpAsync('z'), "keyup/Lit_z");
         }
 
         [Fact]
         public Task InputKeyUpSpecialKey()
         {
-            return this.InputKeyPressTest(input => input.KeyUpAsync(SpecialKeys.VolumeUp), "keyup/VolumeUp");
+            return this.HttpPostTest(device => device.Input.KeyUpAsync(SpecialKeys.VolumeUp), "keyup/VolumeUp");
         }
 
         [Fact]
@@ -74,7 +75,55 @@ namespace RokuDotNet.Tests
             handler.VerifySendAsync(Times.Exactly(2));
         }
 
-        private async Task InputKeyPressTest(Func<IRokuDeviceInput, Task> inputFunc, string relativeUrl)
+        [Fact]
+        public Task LaunchInstallAppTest()
+        {
+            return this.HttpPostTest(device => device.Launch.InstallAppAsync("appId"), "install/appId");
+        }
+
+        [Fact]
+        public Task LaunchInstallAppWithParametersTest()
+        {
+            var parameters = new Dictionary<string, string> 
+            { 
+                { "one#", "value%" },
+                { "two%", "value&" }
+            };
+
+            return this.HttpPostTest(device => device.Launch.InstallAppAsync("appId", parameters), "install/appId?one%23=value%25&two%25=value%26");
+        }
+
+        [Fact]
+        public Task LaunchLaunchAppTest()
+        {
+            return this.HttpPostTest(device => device.Launch.LaunchAppAsync("appId"), "launch/appId");
+        }
+
+        [Fact]
+        public Task LaunchLaunchAppWithParametersTest()
+        {
+            var parameters = new Dictionary<string, string> 
+            { 
+                { "one#", "value%" },
+                { "two%", "value&" }
+            };
+
+            return this.HttpPostTest(device => device.Launch.LaunchAppAsync("appId", parameters), "launch/appId?one%23=value%25&two%25=value%26");
+        }
+
+        [Fact]
+        public Task LaunchTvInputTest()
+        {
+            return this.HttpPostTest(device => device.Launch.LaunchTvInputAsync(), "launch/tvinput.dtv");
+        }
+
+        [Fact]
+        public Task LaunchTvInputWithChannelTest()
+        {
+            return this.HttpPostTest(device => device.Launch.LaunchTvInputAsync("one#"), "launch/tvinput.dtv?ch=one%23");
+        }
+
+        private async Task HttpPostTest(Func<IRokuDevice, Task> inputFunc, string relativeUrl)
         {
             var handler = new HttpMessageHandlerMock(MockBehavior.Strict);
 
@@ -86,7 +135,7 @@ namespace RokuDotNet.Tests
 
             var client = new HttpRokuDevice("deviceId", new Uri("http://localhost"), handler.Object);
 
-            await inputFunc(client.Input);
+            await inputFunc(client);
 
             handler.VerifySendAsync(Times.Exactly(1));
         }

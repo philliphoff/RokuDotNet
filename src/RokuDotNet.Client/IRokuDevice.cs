@@ -1,5 +1,6 @@
 using System;
 using RokuDotNet.Client.Input;
+using RokuDotNet.Client.Launch;
 using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
@@ -9,6 +10,8 @@ namespace RokuDotNet.Client
         string Id { get; }
 
         IRokuDeviceInput Input { get; }
+
+        IRokuDeviceLaunch Launch {get; }
 
         IRokuDeviceQuery Query { get; }
     }
