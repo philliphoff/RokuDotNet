@@ -16,6 +16,54 @@ namespace RokuDotNet.Tests
     public sealed class HttpRokuDeviceTests
     {
         [Fact]
+        public Task AppsInstallAppTest()
+        {
+            return this.HttpPostTest(device => device.Apps.InstallAppAsync("appId"), "install/appId");
+        }
+
+        [Fact]
+        public Task AppsInstallAppWithParametersTest()
+        {
+            var parameters = new Dictionary<string, string> 
+            { 
+                { "one#", "value%" },
+                { "two%", "value&" }
+            };
+
+            return this.HttpPostTest(device => device.Apps.InstallAppAsync("appId", parameters), "install/appId?one%23=value%25&two%25=value%26");
+        }
+
+        [Fact]
+        public Task AppsLaunchAppTest()
+        {
+            return this.HttpPostTest(device => device.Apps.LaunchAppAsync("appId"), "launch/appId");
+        }
+
+        [Fact]
+        public Task AppsLaunchAppWithParametersTest()
+        {
+            var parameters = new Dictionary<string, string> 
+            { 
+                { "one#", "value%" },
+                { "two%", "value&" }
+            };
+
+            return this.HttpPostTest(device => device.Apps.LaunchAppAsync("appId", parameters), "launch/appId?one%23=value%25&two%25=value%26");
+        }
+
+        [Fact]
+        public Task AppsTvInputTest()
+        {
+            return this.HttpPostTest(device => device.Apps.LaunchTvInputAsync(), "launch/tvinput.dtv");
+        }
+
+        [Fact]
+        public Task AppsTvInputWithChannelTest()
+        {
+            return this.HttpPostTest(device => device.Apps.LaunchTvInputAsync("one#"), "launch/tvinput.dtv?ch=one%23");
+        }
+
+        [Fact]
         public Task InputKeyDownLiteralKey()
         {
             return this.HttpPostTest(device => device.Input.KeyDownAsync('z'), "keydown/Lit_z");
@@ -73,54 +121,6 @@ namespace RokuDotNet.Tests
             await client.Input.KeyPressAsync(new PressedKey[] { SpecialKeys.VolumeUp, 'z' });
 
             handler.VerifySendAsync(Times.Exactly(2));
-        }
-
-        [Fact]
-        public Task LaunchInstallAppTest()
-        {
-            return this.HttpPostTest(device => device.Launch.InstallAppAsync("appId"), "install/appId");
-        }
-
-        [Fact]
-        public Task LaunchInstallAppWithParametersTest()
-        {
-            var parameters = new Dictionary<string, string> 
-            { 
-                { "one#", "value%" },
-                { "two%", "value&" }
-            };
-
-            return this.HttpPostTest(device => device.Launch.InstallAppAsync("appId", parameters), "install/appId?one%23=value%25&two%25=value%26");
-        }
-
-        [Fact]
-        public Task LaunchLaunchAppTest()
-        {
-            return this.HttpPostTest(device => device.Launch.LaunchAppAsync("appId"), "launch/appId");
-        }
-
-        [Fact]
-        public Task LaunchLaunchAppWithParametersTest()
-        {
-            var parameters = new Dictionary<string, string> 
-            { 
-                { "one#", "value%" },
-                { "two%", "value&" }
-            };
-
-            return this.HttpPostTest(device => device.Launch.LaunchAppAsync("appId", parameters), "launch/appId?one%23=value%25&two%25=value%26");
-        }
-
-        [Fact]
-        public Task LaunchTvInputTest()
-        {
-            return this.HttpPostTest(device => device.Launch.LaunchTvInputAsync(), "launch/tvinput.dtv");
-        }
-
-        [Fact]
-        public Task LaunchTvInputWithChannelTest()
-        {
-            return this.HttpPostTest(device => device.Launch.LaunchTvInputAsync("one#"), "launch/tvinput.dtv?ch=one%23");
         }
 
         private async Task HttpPostTest(Func<IRokuDevice, Task> inputFunc, string relativeUrl)

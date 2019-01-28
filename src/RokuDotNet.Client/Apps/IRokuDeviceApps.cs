@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RokuDotNet.Client.Launch
+namespace RokuDotNet.Client.Apps
 {
-    public interface IRokuDeviceLaunch
+    public interface IRokuDeviceApps
     {
         Task InstallAppAsync(string appId, CancellationToken cancellationToken = default(CancellationToken));
         Task InstallAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken = default(CancellationToken));

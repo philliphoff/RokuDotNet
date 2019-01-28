@@ -1,6 +1,6 @@
 using System;
+using RokuDotNet.Client.Apps;
 using RokuDotNet.Client.Input;
-using RokuDotNet.Client.Launch;
 using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
@@ -9,9 +9,9 @@ namespace RokuDotNet.Client
     {
         string Id { get; }
 
-        IRokuDeviceInput Input { get; }
+        IRokuDeviceApps Apps {get; }
 
-        IRokuDeviceLaunch Launch {get; }
+        IRokuDeviceInput Input { get; }
 
         IRokuDeviceQuery Query { get; }
     }

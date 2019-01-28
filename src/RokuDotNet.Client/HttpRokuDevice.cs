@@ -8,13 +8,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Serialization;
+using RokuDotNet.Client.Apps;
 using RokuDotNet.Client.Input;
-using RokuDotNet.Client.Launch;
 using RokuDotNet.Client.Query;
 
 namespace RokuDotNet.Client
 {
-    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceInput, IRokuDeviceLaunch, IRokuDeviceQuery
+    public sealed class HttpRokuDevice : IHttpRokuDevice, IRokuDeviceApps, IRokuDeviceInput, IRokuDeviceQuery
     {
         private readonly HttpClient client;
 
@@ -34,13 +34,47 @@ namespace RokuDotNet.Client
 
         #region IRokuDevice Members
 
-        public IRokuDeviceInput Input => this;
+        public IRokuDeviceApps Apps => this;
 
         public string Id { get; }
 
-        public IRokuDeviceLaunch Launch => this;
+        public IRokuDeviceInput Input => this;
 
         public IRokuDeviceQuery Query => this;
+
+        #endregion
+
+        #region IRokuDeviceApps Members
+
+        Task IRokuDeviceApps.InstallAppAsync(string appId, CancellationToken cancellationToken )
+        {
+            return this.InstallAppCoreAsync(appId, null, cancellationToken);
+        }
+    
+        Task IRokuDeviceApps.InstallAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            return this.InstallAppCoreAsync(appId, parameters, cancellationToken);
+        }
+
+        Task IRokuDeviceApps.LaunchAppAsync(string appId, CancellationToken cancellationToken)
+        {
+            return this.LaunchAppCoreAsync(appId, null, cancellationToken);
+        }
+
+        Task IRokuDeviceApps.LaunchAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            return this.LaunchAppCoreAsync(appId, parameters, cancellationToken);
+        }
+
+        Task IRokuDeviceApps.LaunchTvInputAsync(CancellationToken cancellationToken)
+        {
+            return this.LaunchTvInputCoreAsync(null, cancellationToken);
+        }
+
+        Task IRokuDeviceApps.LaunchTvInputAsync(string channel, CancellationToken cancellationToken)
+        {
+            return this.LaunchTvInputCoreAsync(new Dictionary<string, string>{ { "ch", channel } }, cancellationToken);
+        }
 
         #endregion
 
@@ -69,40 +103,6 @@ namespace RokuDotNet.Client
         Task IRokuDeviceInput.KeyUpAsync(PressedKey key, CancellationToken cancellationToken)
         {
             return this.KeyInputAsync("keyup", key, cancellationToken);
-        }
-
-        #endregion
-
-        #region IRokuDeviceLaunch Members
-
-        Task IRokuDeviceLaunch.InstallAppAsync(string appId, CancellationToken cancellationToken )
-        {
-            return this.InstallAppCoreAsync(appId, null, cancellationToken);
-        }
-    
-        Task IRokuDeviceLaunch.InstallAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
-        {
-            return this.InstallAppCoreAsync(appId, parameters, cancellationToken);
-        }
-
-        Task IRokuDeviceLaunch.LaunchAppAsync(string appId, CancellationToken cancellationToken)
-        {
-            return this.LaunchAppCoreAsync(appId, null, cancellationToken);
-        }
-
-        Task IRokuDeviceLaunch.LaunchAppAsync(string appId, IDictionary<string, string> parameters, CancellationToken cancellationToken)
-        {
-            return this.LaunchAppCoreAsync(appId, parameters, cancellationToken);
-        }
-
-        Task IRokuDeviceLaunch.LaunchTvInputAsync(CancellationToken cancellationToken)
-        {
-            return this.LaunchTvInputCoreAsync(null, cancellationToken);
-        }
-
-        Task IRokuDeviceLaunch.LaunchTvInputAsync(string channel, CancellationToken cancellationToken)
-        {
-            return this.LaunchTvInputCoreAsync(new Dictionary<string, string>{ { "ch", channel } }, cancellationToken);
         }
 
         #endregion
