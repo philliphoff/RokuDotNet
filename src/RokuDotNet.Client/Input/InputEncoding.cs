@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
@@ -12,14 +11,14 @@ namespace RokuDotNet.Client.Input
 
         private static ConcurrentDictionary<SpecialKeys, string> keyEncodingCache = new ConcurrentDictionary<SpecialKeys, string>();
     
-        public static (char?, SpecialKeys?) DecodeString(string key)
+        public static PressedKey? DecodeString(string key)
         {
             if (key.StartsWith(LiteralPrefix))
             {
                 string keyString = HttpUtility.UrlDecode(key.Substring(LiteralPrefix.Length));
                 char keyChar = keyString[0];
 
-                return (keyChar, null);
+                return keyChar;
             }
 
             var specialKey = 
@@ -30,10 +29,15 @@ namespace RokuDotNet.Client.Input
 
             if (specialKey != SpecialKeys.Unknown)
             {
-                return (null, specialKey);
+                return specialKey;
             }
 
-            return (null, null);
+            return null;
+        }
+
+        public static string EncodeKey(PressedKey key)
+        {
+            return key.Match(k => EncodeSpecialKey(k), k => EncodeChar(k));
         }
 
         public static string EncodeSpecialKey(SpecialKeys key)

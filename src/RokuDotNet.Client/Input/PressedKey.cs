@@ -63,5 +63,10 @@ namespace RokuDotNet.Client.Input
                 return default(TResult);
             }
         }
+
+        public override string ToString()
+        {
+            return this.Match(key => key.ToString(), key => key.ToString());
+        }
     }
 }
