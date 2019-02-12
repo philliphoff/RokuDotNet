@@ -1,5 +1,6 @@
 using RokuDotNet.Client.Input;
 using Xunit;
+using Xunit.Sdk;
 
 namespace RokuDotNet.Tests.Input
 {
@@ -40,10 +41,22 @@ namespace RokuDotNet.Tests.Input
         [InlineData("InputAV1", null, SpecialKeys.InputAv1)]
         public void DecodeString(string encodedKey, char? expectedDecodedKey, SpecialKeys? expectedDecodedSpecialKey)
         {
-            var (decodedKey, decodedSpecialKey) = InputEncoding.DecodeString(encodedKey);
+            var pressedKey = InputEncoding.DecodeString(encodedKey);
 
-            Assert.Equal(expectedDecodedKey, decodedKey);
-            Assert.Equal(expectedDecodedSpecialKey, decodedSpecialKey);
+            if (expectedDecodedSpecialKey.HasValue)
+            {
+                Assert.NotNull(pressedKey);
+                pressedKey.Value.Match(key => Assert.Equal(expectedDecodedSpecialKey.Value, key), key => throw new XunitException());
+            }
+            else if (expectedDecodedKey.HasValue)
+            {
+                Assert.NotNull(pressedKey);
+                pressedKey.Value.Match(key => throw new XunitException(), key => Assert.Equal(expectedDecodedKey, key));
+            }
+            else
+            {
+                Assert.Null(pressedKey);
+            }
         }
     }
 }
